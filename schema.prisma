@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  whatsapp     String   @unique
+  passwordHash String
+  role         String   @default("USER")
+  isBlocked    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
+
+model Match {
+  id          String       @id
+  homeTeam    String
+  awayTeam    String
+  date        DateTime
+  status      String
+  homeGoals   Int?
+  awayGoals   Int?
+  homeXg      Float?
+  awayXg      Float?
+  predictions Prediction[]
+  odds        OddsHistory[]
+}
+
+model Prediction {
+  id          String   @id @default(uuid())
+  matchId     String
+  probHome    Float
+  probDraw    Float
+  probAway    Float
+  probOver25  Float
+  probUnder25 Float
+  createdAt   DateTime @default(now())
+  match       Match    @relation(fields: [matchId], references: [id])
+}
+
+model OddsHistory {
+  id          String   @id @default(uuid())
+  matchId     String
+  oddHome     Float
+  oddDraw     Float
+  oddAway     Float
+  oddOver25   Float
+  oddUnder25  Float
+  timestamp   DateTime @default(now())
+  match       Match    @relation(fields: [matchId], references: [id])
+}
